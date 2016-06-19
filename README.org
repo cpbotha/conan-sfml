@@ -1,0 +1,9 @@
+sfml conanfile.py
+Modification of https://github.com/TyRoXx/conan-sfml
+by https://github.com/cpbotha to work on Mac
+
+ * This uses the tarball instead of the zip file, as Python's zipfile
+   library does not support symlinks, required on the Mac. See
+   https://github.com/conan-io/conan/issues/336 for more details.
+ * The sfml tarball includes a bunch of mac frameworks. These should
+   be manually copied into =/Library/Frameworks/= from =sfml/extlibs=.
