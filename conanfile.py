@@ -5,9 +5,34 @@
 
 from conans import ConanFile
 import os
-from conans.tools import download, unzip, check_sha256
+from conans.tools import download, unzip, check_sha256, patch
 from conans import CMake
 import platform
+
+# work around a bug in GCC-5 and 6 on Ubuntu
+# see http://en.sfml-dev.org/forums/index.php?topic=20394.0
+# see https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
+# https://lists.fedoraproject.org/archives/list/devel@lists.fedoraproject.org/thread/ZM2L65WIZEEQHHLFERZYD5FAG7QY2OGB/
+SFML_GCC_PATCH = """
+diff --git a/src/SFML/Graphics/CMakeLists.txt b/src/SFML/Graphics/CMakeLists.txt
+index 6f02fb6..bdc84e7 100644
+--- a/src/SFML/Graphics/CMakeLists.txt
++++ b/src/SFML/Graphics/CMakeLists.txt
+@@ -148,6 +148,13 @@ add_definitions(-DSTBI_FAILURE_USERMSG)
+ # when gcc is used; otherwise saving PNGs may crash in stb_image_write
+ if(SFML_COMPILER_GCC)
+     set_source_files_properties(${SRCROOT}/ImageLoader.cpp PROPERTIES COMPILE_FLAGS -fno-strict-aliasing)
++
++endif()
++
++# see https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
++if(SFML_COMPILER_GCC AND BUILD_SHARED_LIBS)
++    message(WARNING "Applying workaround for https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899")
++    list(APPEND GRAPHICS_EXT_LIBS "-lgcc_s -lgcc")
+ endif()
+ 
+ # define the sfml-graphics target
+"""
 
 
 class SFMLConanFile(ConanFile):
@@ -31,6 +56,7 @@ class SFMLConanFile(ConanFile):
         # unzip falls back to untargz in the case of tar.gz extension
         unzip(tgz_name)
         os.unlink(tgz_name)
+        patch(base_path=self.ZIP_FOLDER_NAME, patch_string=SFML_GCC_PATCH)
 
     def build(self):
         cmake = CMake(self.settings)
