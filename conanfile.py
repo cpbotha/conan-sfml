@@ -7,9 +7,10 @@ from conans import ConanFile
 import os
 from conans.tools import download, unzip, check_sha256
 from conans import CMake
+import platform
 
 
-class ArbitraryName(ConanFile):
+class SFMLConanFile(ConanFile):
     name = "sfml"
     version = "2.3.2"
     branch = "stable"
@@ -18,7 +19,7 @@ class ArbitraryName(ConanFile):
     default_options = "shared=True"
     generators = "cmake"
     license = "zlib/png"
-    url="http://github.com/cpbotha/conan-sfml"
+    url = "http://github.com/cpbotha/conan-sfml"
     exports = ["CMakeLists.txt"]
     ZIP_FOLDER_NAME = "SFML-2.3.2"
     so_version = '2.3'
@@ -48,19 +49,29 @@ class ArbitraryName(ConanFile):
     def package(self):
         self.copy("*.*", "include", "install/include", keep_path=True)
         self.copy("*.*", "Frameworks", "install/Frameworks", keep_path=True)
-        self.copy(pattern="*.a", dst="lib", src="install/lib", keep_path=False)
-        self.copy(pattern="*.so." + self.so_version, dst="lib", src="install/lib", keep_path=False)
-        self.copy(pattern="*.lib", dst="lib", src="install/lib", keep_path=False)
-        self.copy(pattern="*.dylib", dst="lib", src="install/lib", keep_path=False)
+        # actually just copy everything in the lib directory
+        # it's a shame that conan does not preserve symbolic links in this case
+        # https://github.com/conan-io/conan/issues/204
+        # but I guess we'll live.
+        self.copy(pattern="*.*", dst="lib", src="install/lib", keep_path=False)
+        #self.copy(pattern="*.so." + self.so_version, dst="lib", src="install/lib", keep_path=False)
+        #self.copy(pattern="*.lib", dst="lib", src="install/lib", keep_path=False)
+        #self.copy(pattern="*.dylib", dst="lib", src="install/lib", keep_path=False)
         self.copy(pattern="*.dll", dst="bin", src="install/lib", keep_path=False)
 
     def package_info(self):
         if (not self.settings.os == "Windows") and self.options.shared:
-            # on Macos, we link to e.g. libsfml-audio.2.3
-            # on Linux, it's libsfml-audio.so.2.3
-            so = '.so.' if self.settings.os == "Linux" else '.'
+            # on Macos, we do e.g. -lsfml-audio.2.3 to link to libsfml-audio.2.3.dylib
+            # on Linux, it's just -lsfml-audio to link to libsfml-audio.so which is a symlink
+            # using platform.system() instead of self.settings.os here
+            # to work around https://github.com/conan-io/conan/issues/338
+            if platform.system() == "Linux":
+                so_version = ''
+            else:
+                so_version = '.' + self.so_version
+
             self.cpp_info.libs = map(
-                lambda name: name + ('-d' if self.settings.build_type == "Debug" else '') + so + self.so_version,
+                lambda name: name + ('-d' if self.settings.build_type == "Debug" else '') + so_version,
                 ['sfml-audio', 'sfml-graphics', 'sfml-network', 'sfml-window', 'sfml-system']
             )
         else:
