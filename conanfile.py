@@ -37,7 +37,7 @@ class ArbitraryName(ConanFile):
         # put frameworks in ~/Library/Frameworks, else we get permission denied
         # for SFML to work, you'll probably have to copy the sfml extlibs
         # frameworks manually into /Library/Frameworks
-        self.run('cd _build && cmake ../%s -DBUILD_SHARED_LIBS=%s -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_INSTALL_FRAMEWORK_PREFIX=../install/extlibs %s' %
+        self.run('cd _build && cmake ../%s -DBUILD_SHARED_LIBS=%s -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_INSTALL_FRAMEWORK_PREFIX=../install/Frameworks %s' %
             (self.ZIP_FOLDER_NAME, "ON" if self.options.shared else "OFF", cmake.command_line)
         )
         if self.settings.os == "Windows":
@@ -47,6 +47,7 @@ class ArbitraryName(ConanFile):
 
     def package(self):
         self.copy("*.*", "include", "install/include", keep_path=True)
+        self.copy("*.*", "Frameworks", "install/Frameworks", keep_path=True)
         self.copy(pattern="*.a", dst="lib", src="install/lib", keep_path=False)
         self.copy(pattern="*.so." + self.so_version, dst="lib", src="install/lib", keep_path=False)
         self.copy(pattern="*.lib", dst="lib", src="install/lib", keep_path=False)
