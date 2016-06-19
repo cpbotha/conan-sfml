@@ -55,8 +55,11 @@ class ArbitraryName(ConanFile):
 
     def package_info(self):
         if (not self.settings.os == "Windows") and self.options.shared:
+            # on Macos, we link to e.g. libsfml-audio.2.3
+            # on Linux, it's libsfml-audio.so.2.3
+            so = '.so.' if self.settings.os == "Linux" else '.'
             self.cpp_info.libs = map(
-                lambda name: ':lib' + name + ('-d' if self.settings.build_type == "Debug" else '') + '.so.' + self.so_version,
+                lambda name: name + ('-d' if self.settings.build_type == "Debug" else '') + so + self.so_version,
                 ['sfml-audio', 'sfml-graphics', 'sfml-network', 'sfml-window', 'sfml-system']
             )
         else:
