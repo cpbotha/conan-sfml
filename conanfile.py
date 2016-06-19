@@ -50,6 +50,7 @@ class ArbitraryName(ConanFile):
         self.copy(pattern="*.a", dst="lib", src="install/lib", keep_path=False)
         self.copy(pattern="*.so." + self.so_version, dst="lib", src="install/lib", keep_path=False)
         self.copy(pattern="*.lib", dst="lib", src="install/lib", keep_path=False)
+        self.copy(pattern="*.dylib", dst="lib", src="install/lib", keep_path=False)
         self.copy(pattern="*.dll", dst="bin", src="install/lib", keep_path=False)
 
     def package_info(self):
