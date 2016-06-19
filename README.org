@@ -5,8 +5,8 @@ by https://github.com/cpbotha to work on Mac
  * This uses the tarball instead of the zip file, as Python's zipfile
    library does not support symlinks, required on the Mac. See
    https://github.com/conan-io/conan/issues/336 for more details.
- * The sfml tarball includes a bunch of mac frameworks. These should
-   be manually copied into =/Library/Frameworks/= from =sfml/extlibs=.
+ * This also does some extra work to get the SFML dylibs and the
+   included frameworks in the right place.
 
 * On Mac, disable CMAKE_SKIP_RPATH
 
