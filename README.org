@@ -7,6 +7,8 @@ by https://github.com/cpbotha to work on Mac
    https://github.com/conan-io/conan/issues/336 for more details.
  * This also does some extra work to get the SFML dylibs and the
    included frameworks in the right place.
+ * Furthermore, it works around the =hidden symbol __cpu_model= GCC 5
+   and 6 bug on Ubuntu by patching the SFML linking configuration.
 
 * On Mac, disable CMAKE_SKIP_RPATH
 
