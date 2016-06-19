@@ -7,3 +7,13 @@ by https://github.com/cpbotha to work on Mac
    https://github.com/conan-io/conan/issues/336 for more details.
  * The sfml tarball includes a bunch of mac frameworks. These should
    be manually copied into =/Library/Frameworks/= from =sfml/extlibs=.
+
+* On Mac, disable CMAKE_SKIP_RPATH
+
+  On the Mac, the current conan 0.9.4 sets =CMAKE_SKIP_RPATH=. If you
+  want these sfml libraries to link correctly with your binary,
+  comment out the =CMAKE_SKIP_RPATH= in your app's
+  =conanbuildinfo.cmake=.
+
+  See https://github.com/conan-io/conan/issues/337 for the whole
+  story.
